@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusWorks</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #18234f;
+  --primary-dark: #293050;
+  --primary-light: #03060e;
+  --bg: #f0f3ff;
+  --card: #ffffff;
+  --text: #323541;
+  --muted: #6b7280;
+  --border: #e5e9f7;
+  --success: #10b981;
+  --danger: #ef4444;
+  --radius: 18px;
+  --shadow: 0 4px 24px rgba(74,108,247,0.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ── Phone Shell ── */
+.phone {
+  width: 390px;
+  height: 780px;
+  background: var(--card);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(74,108,247,0.18), 0 0 0 10px #dde3ff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Screens ── */
+.screen { display:none; flex-direction:column; height:100%; }
+.screen.active { display:flex; }
+
+/* ── Toast ── */
+#toast {
+  position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+  background:#1a1f36; color:#fff; padding:10px 22px; border-radius:30px;
+  font-size:13px; white-space:nowrap; opacity:0; transition:.3s; z-index:999;
+  pointer-events:none;
+}
+#toast.show { opacity:1; }
+
+/* ── Loading ── */
+#loadingOverlay {
+  position:absolute; inset:0; background:rgba(255,255,255,.85);
+  display:flex; align-items:center; justify-content:center;
+  z-index:998; display:none;
+}
+.spinner {
+  width:36px; height:36px; border:3px solid var(--border);
+  border-top-color:var(--primary); border-radius:50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ════════════════════════════
+   AUTH SCREEN
+════════════════════════════ */
+#authScreen {
+  background: linear-gradient(160deg, #151e43 0%, #232d4e 50%, #a5b8ff 100%);
+  padding: 40px 30px 30px;
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.auth-logo .logo-icon {
+  width: 70px; height: 70px;
+  background: rgba(255,255,255,.2);
+  border-radius: 22px;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 34px;
+  margin: 0 auto 14px;
+  backdrop-filter: blur(10px);
+}
+.auth-logo h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 700;
+  color: #fff;
+}
+.auth-logo p { color: rgba(255,255,255,.75); font-size: 13px; margin-top: 4px; }
+
+.auth-card {
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,.3);
+}
+
+.auth-tabs {
+  display: flex; background: rgba(255,255,255,.1);
+  border-radius: 12px; padding: 4px; margin-bottom: 20px;
+}
+.auth-tab {
+  flex:1; padding:8px; text-align:center; border-radius:9px;
+  font-size:13px; font-weight:600; color:rgba(255,255,255,.7);
+  cursor:pointer; transition:.2s;
+}
+.auth-tab.active { background:#fff; color:var(--primary); }
+
+.auth-input {
+  width:100%; padding:12px 14px;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);
+  border-radius:12px; color:#fff; font-size:14px; margin-bottom:12px;
+  outline:none; transition:.2s;
+}
+.auth-input::placeholder { color:rgba(255,255,255,.6); }
+.auth-input:focus { background:rgba(255,255,255,.25); border-color:rgba(255,255,255,.6); }
+
+.auth-btn {
+  width:100%; padding:13px; background:#fff; color:var(--primary);
+  border:none; border-radius:12px; font-size:15px; font-weight:700;
+  font-family:'Syne',sans-serif; cursor:pointer; transition:.2s;
+  margin-top:4px;
+}
+.auth-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,.15); }
+
+/* ════════════════════════════
+   HOME SCREEN
+════════════════════════════ */
+.home-header {
+  background: linear-gradient(135deg, #29347e, #7f86a3);
+  padding: 24px 20px 20px;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+}
+.home-header-top {
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;
+}
+.home-header-top h2 {
+  font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:#fff;
+}
+.logout-btn {
+  background:rgba(255,255,255,.2); border:none; color:#fff;
+  padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer;
+  transition:.2s;
+}
+.logout-btn:hover { background:rgba(255,255,255,.3); }
+
+.user-greeting { color:rgba(255,255,255,.85); font-size:13px; margin-bottom:14px; }
+
+.search-bar {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,.2); border-radius:14px;
+  padding:10px 14px; backdrop-filter:blur(10px);
+}
+.search-bar input {
+  flex:1; background:none; border:none; outline:none;
+  color:#fff; font-size:14px;
+}
+.search-bar input::placeholder { color:rgba(255,255,255,.65); }
+.search-bar span { font-size:16px; }
+
+.filter-chips {
+  display:flex; gap:8px; padding:14px 16px 4px; overflow-x:auto;
+}
+.filter-chips::-webkit-scrollbar { display:none; }
+.chip {
+  padding:6px 14px; border-radius:20px; font-size:12px; font-weight:500;
+  white-space:nowrap; cursor:pointer; transition:.2s;
+  border:1.5px solid var(--border); color:var(--muted); background:#fff;
+}
+.chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+.jobs-list {
+  flex:1; overflow-y:auto; padding:12px 16px 10px;
+}
+.jobs-list::-webkit-scrollbar { display:none; }
+
+.section-title {
+  font-family:'Syne',sans-serif; font-size:15px; font-weight:700;
+  color:var(--text); margin-bottom:12px;
+}
+
+/* Job Card */
+.job-card {
+  background:var(--card); border-radius:var(--radius); padding:16px;
+  margin-bottom:12px; box-shadow:var(--shadow);
+  border:1px solid var(--border); cursor:pointer;
+  transition:.2s; animation: fadeUp .3s ease both;
+}
+.job-card:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(74,108,247,.15); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+.job-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.job-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--text); }
+.job-price { color:var(--primary); font-weight:700; font-size:15px; }
+
+.job-desc { color:var(--muted); font-size:13px; margin-bottom:10px; line-height:1.5; }
+
+.job-meta { display:flex; justify-content:space-between; align-items:center; }
+.job-deadline { font-size:12px; color:var(--muted); }
+.job-poster { font-size:12px; color:var(--muted); }
+
+.apply-btn {
+  width:100%; padding:10px; background:var(--primary); color:#fff;
+  border:none; border-radius:12px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:.2s; margin-top:10px;
+  font-family:'DM Sans',sans-serif;
+}
+.apply-btn:hover { background:var(--primary-dark); }
+.apply-btn.applied { background:var(--success); cursor:default; }
+
+.empty-state {
+  text-align:center; padding:40px 20px; color:var(--muted);
+}
+.empty-state .empty-icon { font-size:40px; margin-bottom:10px; }
+.empty-state p { font-size:14px; }
+
+/* ════════════════════════════
+   POST SCREEN
+════════════════════════════ */
+.screen-header {
+  padding:24px 20px 16px;
+  border-bottom:1px solid var(--border);
+}
+.screen-header h2 {
+  font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--text);
+}
+.screen-header p { color:var(--muted); font-size:13px; margin-top:3px; }
+
+.post-form {
+  flex:1; overflow-y:auto; padding:20px 16px;
+}
+.post-form::-webkit-scrollbar { display:none; }
+
+.form-group { margin-bottom:16px; }
+.form-label {
+  display:block; font-size:13px; font-weight:600; color:var(--text);
+  margin-bottom:6px;
+}
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:12px 14px;
+  border:1.5px solid var(--border); border-radius:12px;
+  font-size:14px; color:var(--text); outline:none;
+  font-family:'DM Sans',sans-serif; transition:.2s; background:#fff;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color:var(--primary); box-shadow:0 0 0 3px rgba(74,108,247,.1);
+}
+.form-textarea { resize:none; height:80px; }
+
+.form-row { display:flex; gap:12px; }
+.form-row .form-group { flex:1; }
+
+.post-btn {
+  width:100%; padding:14px; background:var(--primary); color:#fff;
+  border:none; border-radius:14px; font-size:15px; font-weight:700;
+  font-family:'Syne',sans-serif; cursor:pointer; transition:.2s;
+  margin-top:8px;
+}
+.post-btn:hover { background:var(--primary-dark); transform:translateY(-1px); }
+
+/* ════════════════════════════
+   PROFILE SCREEN
+════════════════════════════ */
+.profile-hero {
+  background:linear-gradient(135deg,#161f66,#101935);
+  padding:30px 20px 24px; text-align:center;
+}
+.profile-avatar {
+  width:72px; height:72px; border-radius:50%;
+  background:rgba(255,255,255,.25); border:3px solid rgba(255,255,255,.5);
+  display:flex; align-items:center; justify-content:center;
+  font-size:32px; margin:0 auto 12px;
+}
+.profile-name {
+  font-family:'Syne',sans-serif; font-size:20px; font: weight 6px00; color:#fff;
+}
+.profile-email { color:rgba(255,255,255,.75); font-size:13px; margin-top:3px; }
+
+.profile-body { flex:1; overflow-y:auto; padding:20px 16px; }
+
+.stats-row { display:flex; gap:12px; margin-bottom:20px; }
+.stat-card {
+  flex:1; background:var(--card); border-radius:14px; padding:14px;
+  text-align:center; box-shadow:var(--shadow); border:1px solid var(--border);
+}
+.stat-num { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--primary); }
+.stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
+
+.section-card {
+  background:var(--card); border-radius:var(--radius); padding:16px;
+  box-shadow:var(--shadow); border:1px solid var(--border); margin-bottom:14px;
+}
+.section-card-title {
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
+  color:var(--text); margin-bottom:12px;
+}
+.my-job-item {
+  padding:10px 0; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.my-job-item:last-child { border-bottom:none; padding-bottom:0; }
+.my-job-name { font-size:13px; font-weight:600; color:var(--text); }
+.my-job-price { font-size:13px; color:var(--primary); font-weight:700; }
+
+.delete-btn {
+  background:none; border:none; color:var(--danger); font-size:16px; cursor:pointer; padding:4px;
+}
+
+/* ════════════════════════════
+   MESSAGES LIST SCREEN
+════════════════════════════ */
+.msg-list { flex:1; overflow-y:auto; padding:12px 16px; }
+.msg-list::-webkit-scrollbar { display:none; }
+
+.conversation-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px; border-radius:14px; cursor:pointer;
+  transition:.2s; margin-bottom:6px;
+  background:var(--card); border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.conversation-item:hover { background:#f0f3ff; }
+.conv-avatar {
+  width:44px; height:44px; border-radius:50%;
+  background:linear-gradient(135deg,#4a6cf7,#6a8dff);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+.conv-info { flex:1; min-width:0; }
+.conv-name { font-weight:600; font-size:14px; color:var(--text); }
+.conv-last { font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.conv-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+.unread-dot {
+  width:8px; height:8px; background:var(--primary);
+  border-radius:50%; flex-shrink:0;
+}
+
+/* ════════════════════════════
+   CHAT SCREEN
+════════════════════════════ */
+.chat-header {
+  background:linear-gradient(135deg,#4a6cf7,#6a8dff);
+  padding:16px 20px; display:flex; align-items:center; gap:12px;
+}
+.chat-back {
+  background:rgba(255,255,255,.2); border:none; color:#fff;
+  width:34px; height:34px; border-radius:50%; font-size:16px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.chat-header-info { flex:1; }
+.chat-header-name { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:#fff; }
+.chat-header-job { font-size:12px; color:rgba(255,255,255,.75); margin-top:2px; }
+
+.chat-messages {
+  flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;
+}
+.chat-messages::-webkit-scrollbar { display:none; }
+
+.msg-bubble {
+  max-width:75%; padding:10px 14px; border-radius:18px;
+  font-size:14px; line-height:1.5; animation: fadeUp .2s ease;
+}
+.msg-bubble.sent {
+  background:var(--primary); color:#fff;
+  border-bottom-right-radius:4px; align-self:flex-end;
+}
+.msg-bubble.received {
+  background:#f0f3ff; color:var(--text);
+  border-bottom-left-radius:4px; align-self:flex-start;
+}
+.msg-time { font-size:10px; opacity:.6; margin-top:4px; }
+
+.chat-input-area {
+  padding:12px 16px; border-top:1px solid var(--border);
+  display:flex; gap:10px; align-items:center; background:#fff;
+}
+.chat-input {
+  flex:1; padding:10px 14px; border:1.5px solid var(--border);
+  border-radius:24px; font-size:14px; outline:none;
+  font-family:'DM Sans',sans-serif; transition:.2s;
+}
+.chat-input:focus { border-color:var(--primary); }
+.chat-send-btn {
+  width:40px; height:40px; background:var(--primary); color:#fff;
+  border:none; border-radius:50%; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:.2s; flex-shrink:0;
+}
+.chat-send-btn:hover { background:var(--primary-dark); transform:scale(1.05); }
+
+.skill-tag {
+  background:#eef1ff; color:var(--primary); padding:5px 12px;
+  border-radius:20px; font-size:12px; font-weight:600;
+}
+.contact-item {
+  display:flex; align-items:center; gap:10px;
+  font-size:13px; color:var(--text); padding:4px 0;
+}
+.portfolio-item-card {
+  background:#f8f9ff; border-radius:12px; padding:12px;
+  border:1px solid var(--border);
+}
+.portfolio-item-card .p-title { font-weight:600; font-size:14px; color:var(--text); }
+.portfolio-item-card .p-desc { font-size:12px; color:var(--muted); margin-top:3px; }
+.portfolio-item-card .p-link { font-size:12px; color:var(--primary); margin-top:4px; display:block; }
+.portfolio-edit-item {
+  background:#f8f9ff; border-radius:12px; padding:12px;
+  border:1px solid var(--border); margin-bottom:10px; position:relative;
+}
+.remove-portfolio-btn {
+  position:absolute; top:8px; right:8px;
+  background:none; border:none; color:var(--danger); font-size:16px; cursor:pointer;
+}
+
+/* ════════════════════════════
+   BOTTOM NAV
+════════════════════════════ */
+.bottom-nav {
+  height:62px; background:#fff; border-top:1px solid var(--border);
+  display:flex; align-items:center; padding:0 10px;
+  flex-shrink:0;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  gap:3px; cursor:pointer; padding:6px 0; border-radius:12px;
+  transition:.2s; color:var(--muted); font-size:10px; font-weight:500;
+}
+.nav-item.active { color:var(--primary); }
+.nav-item .nav-icon { font-size:20px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay"><div class="spinner"></div></div>
+  <div id="toast"></div>
+
+  <!-- ══ AUTH SCREEN ══ -->
+  <div class="screen active" id="authScreen" style="overflow-y:auto;">
+    <div class="auth-logo">
+      <div class="logo-icon">🎓</div>
+      <h1>CampusWorks</h1>
+      <p>Find jobs around your campus</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchTab('login')">Login</div>
+        <div class="auth-tab" onclick="switchTab('register')">Register</div>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <input class="auth-input" type="email" id="loginEmail" placeholder="Email address">
+        <input class="auth-input" type="password" id="loginPassword" placeholder="Password">
+        <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" style="display:none;">
+        <input class="auth-input" type="text" id="regName" placeholder="Full name">
+        <input class="auth-input" type="email" id="regEmail" placeholder="Email address">
+        <input class="auth-input" type="password" id="regPassword" placeholder="Password (min 6 chars)">
+        <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div class="screen" id="homeScreen">
+    <div class="home-header">
+      <div class="home-header-top">
+        <h2>🎓 CampusWorks</h2>
+        <button class="logout-btn" onclick="doLogout()">Logout</button>
+      </div>
+      <div class="user-greeting" id="userGreeting">Welcome back! 👋</div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Search jobs..." id="searchInput" oninput="filterJobs()">
+      </div>
+    </div>
+
+    <div class="filter-chips">
+      <div class="chip active" onclick="setFilter('All',this)">All</div>
+      <div class="chip" onclick="setFilter('Design',this)">🎨 Design</div>
+      <div class="chip" onclick="setFilter('Tech',this)">💻 Tech</div>
+      <div class="chip" onclick="setFilter('Writing',this)">✍️ Writing</div>
+      <div class="chip" onclick="setFilter('Translation',this)">🌐 Translation</div>
+      <div class="chip" onclick="setFilter('Video',this)">🎬 Video</div>
+      <div class="chip" onclick="setFilter('Other',this)">📦 Other</div>
+    </div>
+
+    <div class="jobs-list" id="jobsList">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p>Loading jobs...</p>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="goTo('home')"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item" onclick="goTo('post')"><span class="nav-icon">➕</span>Post</div>
+      <div class="nav-item" onclick="goTo('messages')"><span class="nav-icon">💬</span>Chats</div>
+      <div class="nav-item" onclick="goTo('profile')"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ══ MESSAGES LIST SCREEN ══ -->
+  <div class="screen" id="messagesScreen">
+    <div class="screen-header">
+      <h2>💬 Messages</h2>
+      <p>Your conversations</p>
+    </div>
+    <div class="msg-list" id="conversationsList">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <p>No conversations yet</p>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('home')"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item" onclick="goTo('post')"><span class="nav-icon">➕</span>Post</div>
+      <div class="nav-item active" onclick="goTo('messages')"><span class="nav-icon">💬</span>Chats</div>
+      <div class="nav-item" onclick="goTo('profile')"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ══ CHAT SCREEN ══ -->
+  <div class="screen" id="chatScreen">
+    <div class="chat-header">
+      <button class="chat-back" onclick="goTo('messages')">←</button>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="chatPartnerName">—</div>
+        <div class="chat-header-job" id="chatJobTitle">—</div>
+      </div>
+      <div style="font-size:22px;">👤</div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+      <input class="chat-input" type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+      <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <!-- ══ POST SCREEN ══ -->
+  <div class="screen" id="postScreen">
+    <div class="screen-header">
+      <h2>Post a Job</h2>
+      <p>Fill in the details below</p>
+    </div>
+
+    <div class="post-form">
+      <div class="form-group">
+        <label class="form-label">Job Title</label>
+        <input class="form-input" type="text" id="jobTitle" placeholder="e.g. Logo Design for Startup">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="jobDesc" placeholder="Describe what you need..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="jobCategory">
+            <option value="Design">🎨 Design</option>
+            <option value="Tech">💻 Tech</option>
+            <option value="Writing">✍️ Writing</option>
+            <option value="Translation">🌐 Translation</option>
+            <option value="Video">🎬 Video</option>
+            <option value="Other">📦 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Budget ($)</label>
+          <input class="form-input" type="number" id="jobBudget" placeholder="25">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deadline</label>
+        <input class="form-input" type="text" id="jobDeadline" placeholder="e.g. 3 days, Tomorrow">
+      </div>
+      <button class="post-btn" onclick="doPostJob()">🚀 Post Job</button>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('home')">
+        <span class="nav-icon">🏠</span>Home
+      </div>
+      <div class="nav-item active" onclick="goTo('post')">
+        <span class="nav-icon">➕</span>Post
+      </div>
+      <div class="nav-item" onclick="goTo('messages')"><span class="nav-icon">💬</span>Chats</div>
+      <div class="nav-item" onclick="goTo('profile')">
+        <span class="nav-icon">👤</span>Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE SCREEN ══ -->
+  <div class="screen" id="profileScreen">
+    <div class="profile-hero">
+      <div style="position:relative;display:inline-block;margin-bottom:12px;">
+        <div class="profile-avatar" id="profileAvatarDisplay" style="cursor:pointer;overflow:hidden;" onclick="document.getElementById('photoInput').click()">👤</div>
+        <div style="position:absolute;bottom:0;right:0;background:var(--primary);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;" onclick="document.getElementById('photoInput').click()">📷</div>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+      </div>
+      <div class="profile-name" id="profileName">—</div>
+      <div class="profile-email" id="profileEmail">—</div>
+      <button onclick="goTo('editProfile')" style="margin-top:10px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:7px 18px;border-radius:20px;font-size:12px;cursor:pointer;">✏️ Edit Profile</button>
+    </div>
+
+    <div class="profile-body">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="statPosted">0</div>
+          <div class="stat-label">Posted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statApplied">0</div>
+          <div class="stat-label">Applied</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statSkills">0</div>
+          <div class="stat-label">Skills</div>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="section-card" id="bioCard" style="display:none;">
+        <div class="section-card-title">👋 About Me</div>
+        <p id="profileBio" style="font-size:13px;color:var(--muted);line-height:1.6;"></p>
+      </div>
+
+      <!-- Skills -->
+      <div class="section-card" id="skillsCard" style="display:none;">
+        <div class="section-card-title">🛠 Skills</div>
+        <div id="profileSkills" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      <!-- Contact & Social -->
+      <div class="section-card" id="contactCard" style="display:none;">
+        <div class="section-card-title">📬 Contact</div>
+        <div id="profileContact" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="section-card" id="portfolioCard" style="display:none;">
+        <div class="section-card-title">💼 Portfolio</div>
+        <div id="profilePortfolio" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
+      <!-- My Jobs -->
+      <div class="section-card">
+        <div class="section-card-title">📋 My Posted Jobs</div>
+        <div id="myJobsList">
+          <div class="empty-state" style="padding:16px 0;">
+            <div class="empty-icon" style="font-size:24px;">📭</div>
+            <p style="font-size:12px;">No jobs posted yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goTo('home')"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item" onclick="goTo('post')"><span class="nav-icon">➕</span>Post</div>
+      <div class="nav-item" onclick="goTo('messages')"><span class="nav-icon">💬</span>Chats</div>
+      <div class="nav-item active" onclick="goTo('profile')"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ══ EDIT PROFILE SCREEN ══ -->
+  <div class="screen" id="editProfileScreen">
+    <div class="screen-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="goTo('profile')" style="background:none;border:none;font-size:20px;cursor:pointer;">←</button>
+        <div>
+          <h2>Edit Profile</h2>
+          <p>Update your info</p>
+        </div>
+      </div>
+    </div>
+    <div class="post-form">
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea class="form-textarea" id="editBio" placeholder="Tell people about yourself..." style="height:90px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Skills (comma separated)</label>
+        <input class="form-input" type="text" id="editSkills" placeholder="e.g. Design, Python, Video Editing">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📞 Phone</label>
+        <input class="form-input" type="text" id="editPhone" placeholder="+20 1xx xxx xxxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔗 LinkedIn</label>
+        <input class="form-input" type="text" id="editLinkedin" placeholder="linkedin.com/in/username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📸 Instagram</label>
+        <input class="form-input" type="text" id="editInstagram" placeholder="@username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🐙 GitHub</label>
+        <input class="form-input" type="text" id="editGithub" placeholder="github.com/username">
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span class="form-label" style="margin:0;">💼 Portfolio Projects</span>
+          <button onclick="addPortfolioItem()" style="background:var(--primary);color:#fff;border:none;padding:5px 12px;border-radius:10px;font-size:12px;cursor:pointer;">+ Add</button>
+        </div>
+        <div id="portfolioItems"></div>
+      </div>
+
+      <button class="post-btn" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ FIREBASE ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, where, onSnapshot, setDoc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── YOUR FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyDc3VHsEZZuGpRt8XxBiXRBeG89a5Tp7eo",
+  authDomain: "campusworks-8a197.firebaseapp.com",
+  projectId: "campusworks-8a197",
+  storageBucket: "campusworks-8a197.firebasestorage.app",
+  messagingSenderId: "1080647862860",
+  appId: "1:1080647862860:web:135cc0f12b6ef78a7b42e9",
+  measurementId: "G-V6W9ZPV59H"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── State ──
+let currentUser = null;
+let allJobs = [];
+let appliedJobs = new Set(JSON.parse(localStorage.getItem('appliedJobs') || '[]'));
+let activeFilter = 'All';
+let currentChatId = null;
+let chatUnsubscribe = null;
+
+// ── Helpers ──
+function showLoading(v) { document.getElementById('loadingOverlay').style.display = v ? 'flex' : 'none'; }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Auth State ──
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('userGreeting').textContent = `Welcome, ${user.displayName || user.email.split('@')[0]}! 👋`;
+    document.getElementById('profileName').textContent = user.displayName || user.email.split('@')[0];
+    document.getElementById('profileEmail').textContent = user.email;
+    goTo('home');
+    loadJobs();
+  } else {
+    currentUser = null;
+    showScreen('authScreen');
+  }
+});
+
+// ── Navigation ──
+window.goTo = function(screen) {
+  if (chatUnsubscribe && screen !== 'chat') { chatUnsubscribe(); chatUnsubscribe = null; }
+  if (screen === 'home') { showScreen('homeScreen'); loadJobs(); }
+  else if (screen === 'post') showScreen('postScreen');
+  else if (screen === 'messages') { showScreen('messagesScreen'); loadConversations(); }
+  else if (screen === 'profile') { showScreen('profileScreen'); loadProfile(); }
+  else if (screen === 'editProfile') { showScreen('editProfileScreen'); loadEditProfile(); }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Auth ──
+window.switchTab = function(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  if (!email || !pass) return toast('⚠️ Please fill all fields');
+  showLoading(true);
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    toast('✅ Welcome back!');
+  } catch(e) {
+    toast('❌ ' + (e.code === 'auth/invalid-credential' ? 'Wrong email or password' : e.message));
+  }
+  showLoading(false);
+}
+
+window.doRegister = async function() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPassword').value;
+  if (!name || !email || !pass) return toast('⚠️ Please fill all fields');
+  if (pass.length < 6) return toast('⚠️ Password must be 6+ characters');
+  showLoading(true);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    toast('🎉 Account created!');
+  } catch(e) {
+    toast('❌ ' + (e.code === 'auth/email-already-in-use' ? 'Email already registered' : e.message));
+  }
+  showLoading(false);
+}
+
+window.doLogout = async function() {
+  await signOut(auth);
+  toast('👋 Logged out');
+}
+
+// ── Jobs ──
+async function loadJobs() {
+  try {
+    const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(q);
+    allJobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderJobs();
+    document.getElementById('statApplied').textContent = appliedJobs.size;
+  } catch(e) {
+    renderJobs([]);
+  }
+}
+
+function renderJobs() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let jobs = allJobs.filter(j => {
+    const matchFilter = activeFilter === 'All' || j.category === activeFilter;
+    const matchSearch = !search || j.title.toLowerCase().includes(search) || j.desc.toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
+
+  const container = document.getElementById('jobsList');
+  if (jobs.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>No jobs found</p></div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="section-title">Available Jobs (${jobs.length})</div>` +
+    jobs.map(j => {
+      const isApplied = appliedJobs.has(j.id);
+      const isOwn = currentUser && j.uid === currentUser.uid;
+      return `
+      <div class="job-card">
+        <div class="job-card-top">
+          <div class="job-title">${getCategoryIcon(j.category)} ${j.title}</div>
+          <div class="job-price">$${j.budget}</div>
+        </div>
+        <div class="job-desc">${j.desc}</div>
+        <div class="job-meta">
+          <span class="job-deadline">⏱ ${j.deadline}</span>
+          <span class="job-poster">by ${j.posterName}</span>
+        </div>
+        ${isOwn
+          ? `<button class="apply-btn" style="background:#ef444420;color:#ef4444;" onclick="doDelete('${j.id}')">🗑 Delete My Job</button>`
+          : `<button class="apply-btn ${isApplied ? 'applied' : ''}" onclick="doApply('${j.id}','${j.uid}','${j.posterName}','${j.title.replace(/'/g,"\\'")}',this)">
+              ${isApplied ? '💬 Message Poster' : 'Apply Now'}
+            </button>`
+        }
+      </div>`;
+    }).join('');
+}
+
+function getCategoryIcon(cat) {
+  const icons = { Design:'🎨', Tech:'💻', Writing:'✍️', Translation:'🌐', Video:'🎬', Other:'📦' };
+  return icons[cat] || '📦';
+}
+
+window.setFilter = function(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderJobs();
+}
+
+window.filterJobs = function() { renderJobs(); }
+
+window.doApply = async function(jobId, posterUid, posterName, jobTitle, btn) {
+  appliedJobs.add(jobId);
+  localStorage.setItem('appliedJobs', JSON.stringify([...appliedJobs]));
+  btn.textContent = '💬 Message Poster';
+  btn.classList.add('applied');
+  document.getElementById('statApplied').textContent = appliedJobs.size;
+  toast('🎉 Applied! Opening chat...');
+  await openChat(posterUid, posterName, jobTitle);
+}
+
+window.doPostJob = async function() {
+  const title = document.getElementById('jobTitle').value.trim();
+  const desc = document.getElementById('jobDesc').value.trim();
+  const category = document.getElementById('jobCategory').value;
+  const budget = document.getElementById('jobBudget').value;
+  const deadline = document.getElementById('jobDeadline').value.trim();
+
+  if (!title || !desc || !budget || !deadline) return toast('⚠️ Please fill all fields');
+
+  showLoading(true);
+  try {
+    await addDoc(collection(db, 'jobs'), {
+      title, desc, category,
+      budget: Number(budget),
+      deadline,
+      uid: currentUser.uid,
+      posterName: currentUser.displayName || currentUser.email.split('@')[0],
+      createdAt: serverTimestamp()
+    });
+    document.getElementById('jobTitle').value = '';
+    document.getElementById('jobDesc').value = '';
+    document.getElementById('jobBudget').value = '';
+    document.getElementById('jobDeadline').value = '';
+    toast('🚀 Job posted!');
+    goTo('home');
+  } catch(e) {
+    toast('❌ Error: ' + e.message);
+  }
+  showLoading(false);
+}
+
+window.doDelete = async function(jobId) {
+  if (!confirm('Delete this job?')) return;
+  showLoading(true);
+  try {
+    await deleteDoc(doc(db, 'jobs', jobId));
+    toast('🗑 Job deleted');
+    loadJobs();
+  } catch(e) {
+    toast('❌ Error deleting job');
+  }
+  showLoading(false);
+}
+
+// ── Chat ──
+function getChatId(uid1, uid2) {
+  return [uid1, uid2].sort().join('_');
+}
+
+window.openChat = async function(partnerUid, partnerName, jobTitle) {
+  if (!currentUser) return;
+  currentChatId = getChatId(currentUser.uid, partnerUid);
+
+  // Save conversation metadata for both users
+  await setDoc(doc(db, 'conversations', currentChatId), {
+    participants: [currentUser.uid, partnerUid],
+    participantNames: {
+      [currentUser.uid]: currentUser.displayName || currentUser.email.split('@')[0],
+      [partnerUid]: partnerName
+    },
+    jobTitle,
+    lastMessage: '',
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  document.getElementById('chatPartnerName').textContent = partnerName;
+  document.getElementById('chatJobTitle').textContent = jobTitle;
+  showScreen('chatScreen');
+  loadMessages();
+}
+
+function loadMessages() {
+  if (!currentChatId) return;
+  const messagesDiv = document.getElementById('chatMessages');
+  messagesDiv.innerHTML = '';
+
+  const q = query(collection(db, 'conversations', currentChatId, 'messages'), orderBy('createdAt', 'asc'));
+  chatUnsubscribe = onSnapshot(q, snap => {
+    messagesDiv.innerHTML = '';
+    snap.docs.forEach(d => {
+      const msg = d.data();
+      const isSent = msg.senderUid === currentUser.uid;
+      const time = msg.createdAt ? new Date(msg.createdAt.toMillis()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+      const bubble = document.createElement('div');
+      bubble.className = `msg-bubble ${isSent ? 'sent' : 'received'}`;
+      bubble.innerHTML = `${msg.text}<div class="msg-time">${time}</div>`;
+      messagesDiv.appendChild(bubble);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+}
+
+window.sendMessage = async function() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !currentChatId) return;
+  input.value = '';
+  try {
+    await addDoc(collection(db, 'conversations', currentChatId, 'messages'), {
+      text,
+      senderUid: currentUser.uid,
+      senderName: currentUser.displayName || currentUser.email.split('@')[0],
+      createdAt: serverTimestamp()
+    });
+    await setDoc(doc(db, 'conversations', currentChatId), {
+      lastMessage: text,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch(e) {
+    toast('❌ Failed to send');
+  }
+}
+
+async function loadConversations() {
+  if (!currentUser) return;
+  const container = document.getElementById('conversationsList');
+  container.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>`;
+  try {
+    const q = query(collection(db, 'conversations'), where('participants', 'array-contains', currentUser.uid), orderBy('updatedAt', 'desc'));
+    onSnapshot(q, snap => {
+      if (snap.empty) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><p>No conversations yet.<br>Apply for a job to start chatting!</p></div>`;
+        return;
+      }
+      container.innerHTML = snap.docs.map(d => {
+        const conv = d.data();
+        const partnerUid = conv.participants.find(p => p !== currentUser.uid);
+        const partnerName = conv.participantNames?.[partnerUid] || 'User';
+        return `
+        <div class="conversation-item" onclick="openChatById('${d.id}','${partnerUid}','${partnerName}','${conv.jobTitle}')">
+          <div class="conv-avatar">👤</div>
+          <div class="conv-info">
+            <div class="conv-name">${partnerName}</div>
+            <div class="conv-last">${conv.jobTitle} — ${conv.lastMessage || 'No messages yet'}</div>
+          </div>
+        </div>`;
+      }).join('');
+    });
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Error loading chats</p></div>`;
+  }
+}
+
+window.openChatById = function(chatId, partnerUid, partnerName, jobTitle) {
+  currentChatId = chatId;
+  document.getElementById('chatPartnerName').textContent = partnerName;
+  document.getElementById('chatJobTitle').textContent = jobTitle;
+  showScreen('chatScreen');
+  loadMessages();
+}
+
+async function loadProfile() {
+  if (!currentUser) return;
+  document.getElementById('profileName').textContent = currentUser.displayName || currentUser.email.split('@')[0];
+  document.getElementById('profileEmail').textContent = currentUser.email;
+
+  try {
+    // Load jobs count
+    const q = query(collection(db, 'jobs'), where('uid', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    const myJobs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('statPosted').textContent = myJobs.length;
+    document.getElementById('statApplied').textContent = appliedJobs.size;
+
+    // Load profile data
+    const profileDoc = await getDoc(doc(db, 'profiles', currentUser.uid));
+    if (profileDoc.exists()) {
+      const p = profileDoc.data();
+
+      // Photo
+      if (p.photoURL) {
+        const av = document.getElementById('profileAvatarDisplay');
+        av.style.backgroundImage = `url(${p.photoURL})`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.textContent = '';
+      }
+
+      // Bio
+      if (p.bio) {
+        document.getElementById('bioCard').style.display = 'block';
+        document.getElementById('profileBio').textContent = p.bio;
+      }
+
+      // Skills
+      if (p.skills && p.skills.length > 0) {
+        document.getElementById('skillsCard').style.display = 'block';
+        document.getElementById('statSkills').textContent = p.skills.length;
+        document.getElementById('profileSkills').innerHTML = p.skills.map(s =>
+          `<span class="skill-tag">${s.trim()}</span>`).join('');
+      }
+
+      // Contact
+      const contacts = [];
+      if (p.phone) contacts.push(`<div class="contact-item"><span>📞</span><span>${p.phone}</span></div>`);
+      if (p.linkedin) contacts.push(`<div class="contact-item"><span>🔗</span><a href="https://${p.linkedin}" target="_blank" style="color:var(--primary);">${p.linkedin}</a></div>`);
+      if (p.instagram) contacts.push(`<div class="contact-item"><span>📸</span><span>${p.instagram}</span></div>`);
+      if (p.github) contacts.push(`<div class="contact-item"><span>🐙</span><a href="https://${p.github}" target="_blank" style="color:var(--primary);">${p.github}</a></div>`);
+      if (contacts.length > 0) {
+        document.getElementById('contactCard').style.display = 'block';
+        document.getElementById('profileContact').innerHTML = contacts.join('');
+      }
+
+      // Portfolio
+      if (p.portfolio && p.portfolio.length > 0) {
+        document.getElementById('portfolioCard').style.display = 'block';
+        document.getElementById('profilePortfolio').innerHTML = p.portfolio.map(item => `
+          <div class="portfolio-item-card">
+            <div class="p-title">🗂 ${item.title}</div>
+            <div class="p-desc">${item.desc}</div>
+            ${item.link ? `<a class="p-link" href="${item.link}" target="_blank">🔗 ${item.link}</a>` : ''}
+          </div>`).join('');
+      }
+    }
+
+    // My jobs list
+    const list = document.getElementById('myJobsList');
+    if (myJobs.length === 0) {
+      list.innerHTML = `<div class="empty-state" style="padding:16px 0;"><div class="empty-icon" style="font-size:24px;">📭</div><p style="font-size:12px;">No jobs posted yet</p></div>`;
+    } else {
+      list.innerHTML = myJobs.map(j => `
+        <div class="my-job-item">
+          <div>
+            <div class="my-job-name">${getCategoryIcon(j.category)} ${j.title}</div>
+            <div style="font-size:11px;color:var(--muted);">⏱ ${j.deadline}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="my-job-price">$${j.budget}</span>
+            <button class="delete-btn" onclick="doDelete('${j.id}')">🗑</button>
+          </div>
+        </div>`).join('');
+    }
+  } catch(e) {}
+}
+
+async function loadEditProfile() {
+  if (!currentUser) return;
+  try {
+    const profileDoc = await getDoc(doc(db, 'profiles', currentUser.uid));
+    if (profileDoc.exists()) {
+      const p = profileDoc.data();
+      document.getElementById('editBio').value = p.bio || '';
+      document.getElementById('editSkills').value = (p.skills || []).join(', ');
+      document.getElementById('editPhone').value = p.phone || '';
+      document.getElementById('editLinkedin').value = p.linkedin || '';
+      document.getElementById('editInstagram').value = p.instagram || '';
+      document.getElementById('editGithub').value = p.github || '';
+      // Portfolio
+      const container = document.getElementById('portfolioItems');
+      container.innerHTML = '';
+      (p.portfolio || []).forEach(item => addPortfolioItem(item));
+    }
+  } catch(e) {}
+}
+
+let portfolioCount = 0;
+window.addPortfolioItem = function(item = {}) {
+  const id = portfolioCount++;
+  const container = document.getElementById('portfolioItems');
+  const div = document.createElement('div');
+  div.className = 'portfolio-edit-item';
+  div.id = `pitem_${id}`;
+  div.innerHTML = `
+    <button class="remove-portfolio-btn" onclick="document.getElementById('pitem_${id}').remove()">✕</button>
+    <input class="form-input" style="margin-bottom:8px;" placeholder="Project title" value="${item.title||''}" id="ptitle_${id}">
+    <input class="form-input" style="margin-bottom:8px;" placeholder="Description" value="${item.desc||''}" id="pdesc_${id}">
+    <input class="form-input" placeholder="Link (optional)" value="${item.link||''}" id="plink_${id}">
+  `;
+  container.appendChild(div);
+}
+
+window.saveProfile = async function() {
+  if (!currentUser) return;
+  showLoading(true);
+  try {
+    // Collect portfolio
+    const portfolio = [];
+    document.querySelectorAll('.portfolio-edit-item').forEach(el => {
+      const id = el.id.replace('pitem_', '');
+      const title = document.getElementById(`ptitle_${id}`)?.value.trim();
+      const desc = document.getElementById(`pdesc_${id}`)?.value.trim();
+      const link = document.getElementById(`plink_${id}`)?.value.trim();
+      if (title) portfolio.push({ title, desc, link });
+    });
+
+    const skillsRaw = document.getElementById('editSkills').value;
+    const skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    await setDoc(doc(db, 'profiles', currentUser.uid), {
+      bio: document.getElementById('editBio').value.trim(),
+      skills,
+      phone: document.getElementById('editPhone').value.trim(),
+      linkedin: document.getElementById('editLinkedin').value.trim(),
+      instagram: document.getElementById('editInstagram').value.trim(),
+      github: document.getElementById('editGithub').value.trim(),
+      portfolio,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    toast('✅ Profile saved!');
+    goTo('profile');
+  } catch(e) {
+    toast('❌ Error saving: ' + e.message);
+  }
+  showLoading(false);
+}
+
+window.handlePhotoUpload = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    const av = document.getElementById('profileAvatarDisplay');
+    av.style.backgroundImage = `url(${base64})`;
+    av.style.backgroundSize = 'cover';
+    av.style.backgroundPosition = 'center';
+    av.textContent = '';
+    // Save to Firestore as base64
+    await setDoc(doc(db, 'profiles', currentUser.uid), { photoURL: base64 }, { merge: true });
+    toast('📷 Photo updated!');
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
